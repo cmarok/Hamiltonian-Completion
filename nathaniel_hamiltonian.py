@@ -28,10 +28,6 @@ def check_neighbours(node, current_path=None):
         if n not in visited:
             if (check_neighbours(n, current_path)):
                 return True
-        
-        # else:
-            # if len(current_path) == nx.number_of_nodes(G) and original_node in neighbours:
-                # return True
 
     if len(current_path) == nx.number_of_nodes(G) and original_node in neighbours:
         return True
