@@ -1,0 +1,5 @@
+Just some info about each graph
+
+graph.txt: 18 nodes, 23 edges, False
+graph2.txt: 4 nodes, 4 edges, True
+graph3.txt: 5 nodes, 7 edges, True
