@@ -1,12 +1,15 @@
+import random
+import time
 import networkx as nx
 import ast
 
+filename = 'graph.txt'
 G = nx.Graph()
 visited = set()
 original_node = None
 
 def build_graph():
-    with open('graph.txt', 'r') as f:
+    with open(filename, 'r') as f:
         nodes_line = f.readline()
         edges_line = f.readline()
         nodes = [int(n) for n in nodes_line.split()]
@@ -41,4 +44,9 @@ def main():
 
 build_graph()
 original_node = 1
+timeStart = time.time()
 print check_neighbours(original_node)
+timeEnd = time.time() - timeStart
+print timeEnd
+with open("results.txt", 'a') as myfile:
+	myfile.write(filename + ' ' + str(timeEnd) + '\n')

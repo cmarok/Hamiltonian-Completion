@@ -1,3 +1,4 @@
+import time
 import networkx as nx
 import ast
 
@@ -6,7 +7,7 @@ visited = set()
 original_node = None
 
 def build_graph():
-	f = open('graph.txt', 'r')
+	f = open('10_graph_18.txt', 'r')
 	nodes_line = f.readline()
 	edges_line = f.readline()
 	nodes = [int(n) for n in nodes_line.split()]
@@ -37,5 +38,8 @@ def main():
 build_graph()
 print G.nodes()
 print G.edges()
-original_node = 4
+original_node = 2
+#start_time = time.time()
 print check_neighbours(original_node, [])
+#end_time = time.time()- start_time 
+#print end_time
