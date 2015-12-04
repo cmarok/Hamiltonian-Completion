@@ -5,7 +5,7 @@ import ast
 from mpi4py import MPI
 
 #init stuff
-filename = 'graph2.txt'
+filename = 'graph3.txt'
 G = nx.Graph()
 visited = set()
 original_node = 1
@@ -61,6 +61,7 @@ def check_neighbours(node, current_path=None):
     if len(current_path) == nx.number_of_nodes(G) and original_node in neighbours:
         return True
 
+    current_path.remove(node)
     visited.remove(node) #backtracking
     return False
 
@@ -84,6 +85,7 @@ def child_explore(node, current_path):
         if len(current_path) == nx.number_of_nodes(G) and original_node in neighbours:
             return True
 
+        current_path.remove(node)
         visited.remove(node) #backtracking
         return False
 
