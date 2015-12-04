@@ -24,9 +24,11 @@ def check_neighbours(node, current_path=None):
     if current_path == None:
         current_path = []
     
+    print "Current path is", current_path
     visited.add(node)
     current_path.append(node) 
     
+
     for n in neighbours:
         if n not in visited:
             if (check_neighbours(n, current_path)):
@@ -35,6 +37,7 @@ def check_neighbours(node, current_path=None):
     if len(current_path) == nx.number_of_nodes(G) and original_node in neighbours:
         return True
 
+    current_path.remove(node)
     visited.remove(node)
     return False
 
