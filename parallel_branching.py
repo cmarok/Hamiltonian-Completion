@@ -8,7 +8,7 @@ from mpi4py import MPI
 filename = 'graph2.txt'
 G = nx.Graph()
 visited = set()
-original_node = None
+original_node = 1
 done = False
 busy_threads = 0
 #end of init stuff
@@ -28,6 +28,7 @@ def build_graph():
 
 def check_neighbours(node, current_path=None):
     global visited
+    global busy_threads
     neighbours = list(nx.all_neighbors(G, node))
     
     if current_path == None:
@@ -44,8 +45,9 @@ def check_neighbours(node, current_path=None):
     
     for n in neighbours:
         if n not in visited:
-            if (busy_threads < size) and neighbour_iterator < len(neighbours):
+            if (busy_threads < size - 1) and neighbour_iterator < len(neighbours):
                 busy_threads += 1
+                print "Sending job to thread", busy_threads
                 comm.send(current_path, dest=busy_threads, tag=2)
                 comm.send(node, dest=busy_threads, tag=3)
                 neighbour_iterator += 1
@@ -60,6 +62,9 @@ def check_neighbours(node, current_path=None):
     return False
 
 def child_explore(node, current_path):
+    global done
+
+    neighbours = list(nx.all_neighbors(G, node))
     if(not done):
         current_path.append(node)
         for node in current_path:
@@ -88,7 +93,7 @@ def main():
         G.add_edges_from(comm.recv(source=0, tag=1))
         current_path = comm.recv(source=0, tag=2) #blocking wait
         starting_node = comm.recv(source=0, tag=3) #blocking wait
-        print child_explore(node, current_path)
+        print child_explore(starting_node, current_path)
 
 main()
 
