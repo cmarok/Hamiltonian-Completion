@@ -42,14 +42,17 @@ def check_neighbours(node, current_path=None):
     #and continue passing off branches to other processes until it runs out
     #of processes
     neighbour_iterator = 0
-    
+
+    print "Root sees visited as", visited
+    print "Root sees current path as", current_path
+
     for n in neighbours:
         if n not in visited:
             if (busy_threads < size - 1) and neighbour_iterator < len(neighbours):
                 busy_threads += 1
-                print "Sending job to thread", busy_threads
+                # print "Sending job to thread", busy_threads
                 comm.send(current_path, dest=busy_threads, tag=2)
-                comm.send(node, dest=busy_threads, tag=3)
+                comm.send(n, dest=busy_threads, tag=3)
                 neighbour_iterator += 1
             elif (check_neighbours(n, current_path)): #if there's no more branches or threads to distribute...do it yourself
                 done = True
@@ -65,11 +68,14 @@ def child_explore(node, current_path):
     global done
 
     neighbours = list(nx.all_neighbors(G, node))
+    print "Child starting node", node
     if(not done):
         current_path.append(node)
         for node in current_path:
             visited.add(node) #this will include the current node since it just got appended
 
+        print "Child is seeing visited as", visited
+        print "Child is seeing current path as", current_path
         for n in neighbours:
             if n not in visited:
                 if (child_explore(n, current_path)):
@@ -87,13 +93,13 @@ def main():
         for i in range(1, comm.Get_size()):
             comm.send(G.nodes(), dest=i, tag=0)
             comm.send(G.edges(), dest=i, tag=1)
-        print check_neighbours(original_node)
+        print "Root returns", check_neighbours(original_node)
     else:
         G.add_nodes_from(comm.recv(source=0, tag=0))
         G.add_edges_from(comm.recv(source=0, tag=1))
         current_path = comm.recv(source=0, tag=2) #blocking wait
         starting_node = comm.recv(source=0, tag=3) #blocking wait
-        print child_explore(starting_node, current_path)
+        print "Child returns", child_explore(starting_node, current_path)
 
 main()
 
