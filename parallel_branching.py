@@ -5,7 +5,7 @@ import ast
 from mpi4py import MPI
 
 #init stuff
-filename = 'graph3.txt'
+filename = 'graph.txt'
 G = nx.Graph()
 visited = set()
 original_node = 1
@@ -95,21 +95,23 @@ def main():
         for i in range(1, comm.Get_size()):
             comm.send(G.nodes(), dest=i, tag=0)
             comm.send(G.edges(), dest=i, tag=1)
-        print "Root returns", check_neighbours(original_node)
+        if check_neighbours(original_node):
+            comm.Abort()
     else:
         G.add_nodes_from(comm.recv(source=0, tag=0))
         G.add_edges_from(comm.recv(source=0, tag=1))
         current_path = comm.recv(source=0, tag=2) #blocking wait
         starting_node = comm.recv(source=0, tag=3) #blocking wait
-        print "Child returns", child_explore(starting_node, current_path)
+        if child_explore(starting_node, current_path):
+            comm.Abort()
 
+timeStart = time.time()
 main()
+timeEnd = time.time() - timeStart
+print timeEnd
 
 # build_graph()
 # original_node = 1
-# timeStart = time.time()
 # print check_neighbours(original_node)
-# timeEnd = time.time() - timeStart
-# print timeEnd
 # with open("results.txt", 'a') as myfile:
 # 	myfile.write(filename + ' ' + str(timeEnd) + '\n')
