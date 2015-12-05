@@ -3,7 +3,7 @@ import time
 import networkx as nx
 import ast
 
-filename = 'graph.txt'
+filename = 'hamExample.txt'
 G = nx.Graph()
 visited = set()
 original_node = None
