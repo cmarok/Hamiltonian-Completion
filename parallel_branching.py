@@ -126,6 +126,7 @@ timeStart = time.time()
 main()
 timeEnd = time.time() - timeStart
 print timeEnd
+comm.Abort()
 
 # build_graph()
 # original_node = 1
