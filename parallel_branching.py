@@ -57,18 +57,18 @@ def check_neighbours(node, current_path=None):
                 neighbour_iterator += 1
             elif (check_neighbours(n, current_path)): #if there's no more branches or threads to distribute...do it yourself
                 done = True
-                comm.barrier()
+                # comm.barrier()
                 comm.bcast(done, root=rank)
                 return True
 
     if len(current_path) == nx.number_of_nodes(G) and original_node in neighbours:
-        comm.barrier()
+        # comm.barrier()
         comm.bcast(done, root=rank)
         return True
 
     current_path.remove(node)
     visited.remove(node) #backtracking
-    comm.barrier()
+    # comm.barrier()
     if done:
         print "Process",rank,"exiting"
         Finalize()
@@ -94,13 +94,13 @@ def child_explore(node, current_path):
                 comm.bcast(done, root=rank)
                 return True
     if len(current_path) == nx.number_of_nodes(G) and original_node in neighbours:
-        comm.barrier()
+        # comm.barrier()
         comm.bcast(done, root=rank)
         return True
 
     current_path.remove(node)
     visited.remove(node) #backtracking
-    comm.barrier()
+    # comm.barrier()
     if done:
         print "Process",rank,"exiting"
         Finalize()
