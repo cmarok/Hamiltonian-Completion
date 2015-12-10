@@ -5,7 +5,7 @@ import ast
 from mpi4py import MPI
 
 #init stuff
-filename = 'hamExample.txt'
+filename = '4_graph_4.txt'
 G = nx.Graph()
 visited = set()
 original_node = 1
@@ -49,7 +49,7 @@ def check_neighbours(node, current_path=None):
 
     for n in neighbours:
         if n not in visited:
-            if (busy_threads < size - 1) and neighbour_iterator < len(neighbours):
+            if (busy_threads < size - 1) and neighbour_iterator < len(neighbours)-1:
                 busy_threads += 1
                 # print "Sending job to thread", busy_threads
                 comm.send(current_path, dest=busy_threads, tag=2)
@@ -70,6 +70,7 @@ def check_neighbours(node, current_path=None):
     visited.remove(node) #backtracking
     comm.barrier()
     if done:
+        print "Process",rank,"exiting"
         Finalize()
     return False
 
@@ -77,7 +78,7 @@ def child_explore(node, current_path):
     global done
 
     neighbours = list(nx.all_neighbors(G, node))
-    print "Child starting node", node
+    # print "Child starting node", node
     
     current_path.append(node)
     for node in current_path:
@@ -101,6 +102,7 @@ def child_explore(node, current_path):
     visited.remove(node) #backtracking
     comm.barrier()
     if done:
+        print "Process",rank,"exiting"
         Finalize()
     return False
 
@@ -123,10 +125,13 @@ def main():
             return True
 
 timeStart = time.time()
-main()
+test = main()
 timeEnd = time.time() - timeStart
 print timeEnd
-comm.Abort()
+print "Process",rank,"has gotten out somehow..."
+if test:
+    comm.Abort()
+exit(0)
 
 # build_graph()
 # original_node = 1

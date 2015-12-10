@@ -3,35 +3,43 @@ import random
 import string
 
 
-def makeEdges(currentEdge, totalNodes):
-	numEdges = random.randint(currentEdge + 1, totalNodes)
-	edges = random.sample(range(currentEdge + 1, totalNodes), numEdges)
-	outString = ''
-	for edge in edges:
-		outString += '[' + str(currentEdge) + ',' + str(edge) + '], '
-	return outString
-		
-
 def write():
-    	print('Creating new text file') 
+     print('Creating new text file')
 
-    	name = raw_input('Enter name of text file: ')+'.txt'  # Name of text file coerced with +.txt
+     name = str(sys.argv[1]) + '_graph_' + str(sys.argv[2]) +'.txt'  # Name of text file coerced with +.txt
+     try:
+          file = open(name,'w')   # Trying to create a new file or open one
+          numNodes = int(sys.argv[1])
+          numEdges = int(sys.argv[2])
+          
+          lineOne = ''
+          for i in range(1, numNodes+1):
+               lineOne += str(i) + ' ' 
+          lineOne += '\n'
+          file.write(lineOne)
+          
+          #make connections
+          possible = []
+          for i in range(1, numNodes+1):
+               for j in range(1, numNodes+1):
+                    if j > i:
+                         possible.append([i,j])
 
-    	try:
-        	file = open(name,'w')   # Trying to create a new file or open one
-		numNodes = raw_input('Enter number of nodes to create: ')
-		finalString = '('
-		for i in xrange(1, numNodes):
-			finalString += makeEdges(i, numNodes)
-		
-		finalString = finalString[:-2]
-		finalString += ')'
-		print '%s' % finalString
-	        file.close()
+          edges = random.sample(possible, numEdges)
+          outString = '('
+          for edge in edges:
+               outString += str(edge) + ', '
+          finalString = outString
+          
+          finalString = finalString[:-2]
+          finalString += ')'
+          file.write(finalString)
+          
+          file.close()
 
-	except:
-        	print('Something went wrong! Can\'t tell what?')
-	        sys.exit(0) # quit Python
+     except:
+          print('Something went wrong! Can\'t tell what?')
+          sys.exit(0) # quit Python
 
 write()
 	
