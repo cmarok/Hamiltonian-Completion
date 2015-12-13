@@ -3,7 +3,7 @@ import time
 import networkx as nx
 import ast
 
-filename = 'graph.txt'
+filename = '4_graph_4.txt'
 G = nx.Graph()
 visited = set()
 original_node = None
@@ -45,9 +45,9 @@ def main():
     build_graph()
     print "What are we doing"
 
+timeStart = time.time()
 build_graph()
 original_node = 1
-timeStart = time.time()
 print check_neighbours(original_node)
 timeEnd = time.time() - timeStart
 print timeEnd

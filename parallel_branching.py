@@ -5,7 +5,7 @@ import ast
 from mpi4py import MPI
 
 #init stuff
-filename = 'graph3.txt'
+filename = '4_graph_4.txt'
 G = nx.Graph()
 visited = set()
 original_node = 1
@@ -29,6 +29,7 @@ def build_graph():
 def check_neighbours(node, current_path=None):
     global visited
     global busy_threads
+    global done
     neighbours = list(nx.all_neighbors(G, node))
     
     if current_path == None:
@@ -48,7 +49,7 @@ def check_neighbours(node, current_path=None):
 
     for n in neighbours:
         if n not in visited:
-            if (busy_threads < size - 1) and neighbour_iterator < len(neighbours):
+            if (busy_threads < size - 1) and neighbour_iterator < len(neighbours)-1:
                 busy_threads += 1
                 # print "Sending job to thread", busy_threads
                 comm.send(current_path, dest=busy_threads, tag=2)
@@ -56,38 +57,54 @@ def check_neighbours(node, current_path=None):
                 neighbour_iterator += 1
             elif (check_neighbours(n, current_path)): #if there's no more branches or threads to distribute...do it yourself
                 done = True
+                # comm.barrier()
+                comm.bcast(done, root=rank)
                 return True
 
     if len(current_path) == nx.number_of_nodes(G) and original_node in neighbours:
+        # comm.barrier()
+        comm.bcast(done, root=rank)
         return True
 
     current_path.remove(node)
     visited.remove(node) #backtracking
+    # comm.barrier()
+    if done:
+        print "Process",rank,"exiting"
+        Finalize()
     return False
 
 def child_explore(node, current_path):
     global done
 
     neighbours = list(nx.all_neighbors(G, node))
-    print "Child starting node", node
-    if(not done):
-        current_path.append(node)
-        for node in current_path:
-            visited.add(node) #this will include the current node since it just got appended
+    # print "Child starting node", node
+    
+    current_path.append(node)
+    for node in current_path:
+        visited.add(node) #this will include the current node since it just got appended
 
-        print "Child is seeing visited as", visited
-        print "Child is seeing current path as", current_path
-        for n in neighbours:
-            if n not in visited:
-                if (child_explore(n, current_path)):
-                    done = True
-                    return True
-        if len(current_path) == nx.number_of_nodes(G) and original_node in neighbours:
-            return True
+    print "Child", rank, "is seeing visited as", visited
+    print "Child", rank, "is seeing current path as", current_path
+    for n in neighbours:
+        if n not in visited:
+            if (child_explore(n, current_path)):
+                done = True
+                comm.barrier()
+                comm.bcast(done, root=rank)
+                return True
+    if len(current_path) == nx.number_of_nodes(G) and original_node in neighbours:
+        # comm.barrier()
+        comm.bcast(done, root=rank)
+        return True
 
-        current_path.remove(node)
-        visited.remove(node) #backtracking
-        return False
+    current_path.remove(node)
+    visited.remove(node) #backtracking
+    # comm.barrier()
+    if done:
+        print "Process",rank,"exiting"
+        Finalize()
+    return False
 
 def main():
     if rank == 0:
@@ -95,21 +112,29 @@ def main():
         for i in range(1, comm.Get_size()):
             comm.send(G.nodes(), dest=i, tag=0)
             comm.send(G.edges(), dest=i, tag=1)
-        print "Root returns", check_neighbours(original_node)
+        if check_neighbours(original_node):
+            print "Root returns true!"
+            return True
     else:
         G.add_nodes_from(comm.recv(source=0, tag=0))
         G.add_edges_from(comm.recv(source=0, tag=1))
         current_path = comm.recv(source=0, tag=2) #blocking wait
         starting_node = comm.recv(source=0, tag=3) #blocking wait
-        print "Child returns", child_explore(starting_node, current_path)
+        if child_explore(starting_node, current_path):
+            print "Child", rank, "returns true!"
+            return True
 
-main()
+timeStart = time.time()
+test = main()
+timeEnd = time.time() - timeStart
+print timeEnd
+print "Process",rank,"has gotten out somehow..."
+if test:
+    comm.Abort()
+exit(0)
 
 # build_graph()
 # original_node = 1
-# timeStart = time.time()
 # print check_neighbours(original_node)
-# timeEnd = time.time() - timeStart
-# print timeEnd
 # with open("results.txt", 'a') as myfile:
 # 	myfile.write(filename + ' ' + str(timeEnd) + '\n')

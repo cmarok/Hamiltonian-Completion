@@ -1,12 +1,46 @@
 from mpi4py import MPI
+import pdb
+
+# pdb.set_trace()
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 
-if rank == 0:
-	data = [1, 2, 3]
-	comm.send(data, dest=1, tag=11)
-else:
-	data = comm.recv(source=0, tag=11)
+done = False
+count = 0
 
-print "Hi I'm process", rank, "and data is", type(data)
+def increment():
+	global count
+	global done
+	count += 1
+	print rank, "is at", count
+	done = comm.bcast(done, root=1)
+	print rank, "got past bcast"
+	if done: 
+		print rank, "exiting with count=", count
+		MPI.Finalize()
+
+def main():
+	global done
+	global count
+	if rank == 0:
+		while count < 501:
+			print rank, "started iteration"
+			increment()
+			print rank, "finished iteration"
+	elif rank == 1:
+		while count < 501:
+			print rank, "started iteration"
+			increment()
+			print rank, "finished iteration"
+		done = True
+		done = comm.bcast(done, root=rank)
+	else:
+		while count < 10:
+			print rank, "started iteration"
+			increment()
+			print rank, "finished iteration"
+	print rank, "exiting from main. Done =", done, "Count =", count
+	MPI.Finalize()
+
+main()
