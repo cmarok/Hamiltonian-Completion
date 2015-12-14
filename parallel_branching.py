@@ -3,9 +3,10 @@ import time
 import networkx as nx
 import ast
 from mpi4py import MPI
+import sys
 
 #init stuff
-filename = '4_graph_4.txt'
+filename = sys.argv[1] +'_graph_' + sys.argv[2] + '.txt'
 G = nx.Graph()
 visited = set()
 original_node = 1
@@ -44,8 +45,8 @@ def check_neighbours(node, current_path=None):
     #of processes
     neighbour_iterator = 0
 
-    print "Root sees visited as", visited
-    print "Root sees current path as", current_path
+    # print "Root sees visited as", visited
+    # print "Root sees current path as", current_path
 
     for n in neighbours:
         if n not in visited:
@@ -56,19 +57,13 @@ def check_neighbours(node, current_path=None):
                 comm.send(n, dest=busy_threads, tag=3)
                 neighbour_iterator += 1
             elif (check_neighbours(n, current_path)): #if there's no more branches or threads to distribute...do it yourself
-                done = True
-                # comm.barrier()
-                comm.bcast(done, root=rank)
                 return True
 
     if len(current_path) == nx.number_of_nodes(G) and original_node in neighbours:
-        # comm.barrier()
-        comm.bcast(done, root=rank)
         return True
 
     current_path.remove(node)
     visited.remove(node) #backtracking
-    # comm.barrier()
     if done:
         print "Process",rank,"exiting"
         Finalize()
@@ -84,18 +79,14 @@ def child_explore(node, current_path):
     for node in current_path:
         visited.add(node) #this will include the current node since it just got appended
 
-    print "Child", rank, "is seeing visited as", visited
-    print "Child", rank, "is seeing current path as", current_path
+    # print "Child", rank, "is seeing visited as", visited
+    # print "Child", rank, "is seeing current path as", current_path
     for n in neighbours:
         if n not in visited:
             if (child_explore(n, current_path)):
-                done = True
-                comm.barrier()
-                comm.bcast(done, root=rank)
                 return True
     if len(current_path) == nx.number_of_nodes(G) and original_node in neighbours:
         # comm.barrier()
-        comm.bcast(done, root=rank)
         return True
 
     current_path.remove(node)
@@ -131,10 +122,5 @@ print timeEnd
 print "Process",rank,"has gotten out somehow..."
 if test:
     comm.Abort()
-exit(0)
+MPI.Finalize()
 
-# build_graph()
-# original_node = 1
-# print check_neighbours(original_node)
-# with open("results.txt", 'a') as myfile:
-# 	myfile.write(filename + ' ' + str(timeEnd) + '\n')
