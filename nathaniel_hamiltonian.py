@@ -2,8 +2,9 @@ import random
 import time
 import networkx as nx
 import ast
+import sys
 
-filename = '4_graph_4.txt'
+filename = sys.argv[1] +'_graph_' + sys.argv[2] + '.txt'
 G = nx.Graph()
 visited = set()
 original_node = None
@@ -24,7 +25,7 @@ def check_neighbours(node, current_path=None):
     if current_path == None:
         current_path = []
     
-    print "Current path is", current_path
+   # print "Current path is", current_path
     visited.add(node)
     current_path.append(node) 
     
@@ -47,7 +48,8 @@ def main():
 
 timeStart = time.time()
 build_graph()
-original_node = 1
+original_node = random.randint(1, nx.number_of_nodes(G))
+print original_node
 print check_neighbours(original_node)
 timeEnd = time.time() - timeStart
 print timeEnd
