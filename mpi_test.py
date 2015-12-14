@@ -14,7 +14,7 @@ def increment():
 	global done
 	count += 1
 	print rank, "is at", count
-	done = comm.bcast(done, root=1)
+	done = comm.bcast(done, root=MPI.ANY_SOURCE)
 	print rank, "got past bcast"
 	if done: 
 		print rank, "exiting with count=", count
@@ -29,14 +29,14 @@ def main():
 			increment()
 			print rank, "finished iteration"
 	elif rank == 1:
-		while count < 501:
+		while count < 50:
 			print rank, "started iteration"
 			increment()
 			print rank, "finished iteration"
 		done = True
 		done = comm.bcast(done, root=rank)
 	else:
-		while count < 10:
+		while count < 1000:
 			print rank, "started iteration"
 			increment()
 			print rank, "finished iteration"
