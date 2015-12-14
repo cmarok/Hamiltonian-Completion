@@ -14,8 +14,8 @@ def increment():
 	global done
 	count += 1
 	print rank, "is at", count
-	done = comm.bcast(done, root=MPI.ANY_SOURCE)
-	print rank, "got past bcast"
+	done = comm.recv(source=0)
+	print rank, "got past recv"
 	if done: 
 		print rank, "exiting with count=", count
 		MPI.Finalize()
@@ -23,11 +23,19 @@ def increment():
 def main():
 	global done
 	global count
+	Py_buffer buf
 	if rank == 0:
+<<<<<<< Updated upstream
 		while count < 1001:
 			# print rank, "started iteration"
 			increment()
 			# print rank, "finished iteration"
+=======
+		while not done:
+			done = comm.Irecv(buf, MPI.ANY_SOURCE)
+			for i in range(1, comm.Get_size()):
+				comm.send(done, dest=i)
+>>>>>>> Stashed changes
 	elif rank == 1:
 <<<<<<< Updated upstream
 		while count < 50:
@@ -39,7 +47,7 @@ def main():
 			increment()
 			# print rank, "finished iteration"
 		done = True
-		done = comm.bcast(done, root=rank)
+		comm.send(done, dest=0)
 	else:
 <<<<<<< Updated upstream
 		while count < 1000:

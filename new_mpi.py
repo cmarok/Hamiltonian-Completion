@@ -33,7 +33,7 @@ def check_neighbours(node, current_path=None):
     if current_path == None:
         current_path = []
     
-    print "Current path is", current_path
+    # print "Current path is", current_path
     visited.add(node)
     current_path.append(node) 
     
@@ -52,7 +52,19 @@ def check_neighbours(node, current_path=None):
 
 def main():
     if rank < nx.number_of_nodes(G):
-	   starting_node = rank
-	   check_neighbours(starting_node, None)
+        starting_node = rank
+        timeStart = time.time()
+        starting_node = rank + 1
+        if check_neighbours(starting_node, None):
+            print "Graph is hamiltonian! (process", rank, ")"
+        else:
+            print "Graph is not hamiltonian (process", rank, ")"
+        timeEnd = time.time() - timeStart
+        print timeEnd
+        comm.Abort()
+
+build_graph()
+
+main()
 
 
