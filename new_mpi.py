@@ -5,7 +5,7 @@ import ast
 from mpi4py import MPI
 
 #init stuff
-filename = '4_graph_4.txt'
+filename = '29_graph_70.txt'
 G = nx.Graph()
 visited = set()
 original_node = 1
