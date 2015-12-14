@@ -24,22 +24,32 @@ def main():
 	global done
 	global count
 	if rank == 0:
-		while count < 501:
-			print rank, "started iteration"
+		while count < 1001:
+			# print rank, "started iteration"
 			increment()
-			print rank, "finished iteration"
+			# print rank, "finished iteration"
 	elif rank == 1:
+<<<<<<< Updated upstream
 		while count < 50:
 			print rank, "started iteration"
+=======
+		while count < 1501:
+			# print rank, "started iteration"
+>>>>>>> Stashed changes
 			increment()
-			print rank, "finished iteration"
+			# print rank, "finished iteration"
 		done = True
 		done = comm.bcast(done, root=rank)
 	else:
+<<<<<<< Updated upstream
 		while count < 1000:
 			print rank, "started iteration"
+=======
+		while count < 499:
+			# print rank, "started iteration"
+>>>>>>> Stashed changes
 			increment()
-			print rank, "finished iteration"
+			# print rank, "finished iteration"
 	print rank, "exiting from main. Done =", done, "Count =", count
 	MPI.Finalize()
 

@@ -51,7 +51,8 @@ def check_neighbours(node, current_path=None):
     return False
 
 def main():
-	starting_node = rank
-	check_neighbours(starting_node, None)
+    if rank < nx.number_of_nodes(G):
+	   starting_node = rank
+	   check_neighbours(starting_node, None)
 
 
