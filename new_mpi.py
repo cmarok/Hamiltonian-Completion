@@ -3,6 +3,7 @@ import time
 import networkx as nx
 import ast
 from mpi4py import MPI
+import sys
 
 #init stuff
 filename = sys.argv[1] +'_graph_' + sys.argv[2] + '.txt'
@@ -51,17 +52,29 @@ def check_neighbours(node, current_path=None):
     return False
 
 def main():
-    if rank < nx.number_of_nodes(G):
-        starting_node = rank
-        timeStart = time.time()
-        starting_node = rank + 1
+    timeStart = time.time()
+    if rank == 0:
+        proc = random.sample(range(1, nx.number_of_nodes(G)), size)
+        for i in range(1, size):
+            comm.send(proc[i], dest=i)
         if check_neighbours(starting_node, None):
-            print "Graph is hamiltonian! (process", rank, ")"
+            print "Graph is hamiltonian! (process", rank, "starting node", starting_node,")"
         else:
-            print "Graph is not hamiltonian (process", rank, ")"
+            print "Graph is not hamiltonian (process", rank, "starting node", starting_node,")"
         timeEnd = time.time() - timeStart
         print timeEnd
         comm.Abort()
+    elif rank < nx.number_of_nodes(G):
+        starting_node = comm.recv(source=0)
+        if check_neighbours(starting_node, None):
+            print "Graph is hamiltonian! (process", rank, "starting node", starting_node,")"
+        else:
+            print "Graph is not hamiltonian (process", rank, "starting node", starting_node,")"
+        timeEnd = time.time() - timeStart
+        print timeEnd
+        comm.Abort()
+    else:
+        MPI.Finalize()        
 
 build_graph()
 
