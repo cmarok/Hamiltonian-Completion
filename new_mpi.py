@@ -57,7 +57,7 @@ def main():
         proc = random.sample(range(1, nx.number_of_nodes(G)), size)
         for i in range(1, size):
             comm.send(proc[i], dest=i)
-        starting_node = 0
+        starting_node = proc[0]
         if check_neighbours(starting_node, None):
             print "Graph is hamiltonian! (process", rank, "starting node", starting_node,")"
         else:
