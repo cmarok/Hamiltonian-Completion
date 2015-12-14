@@ -4,11 +4,7 @@ import networkx as nx
 import ast
 import sys
 
-<<<<<<< Updated upstream
 filename = sys.argv[1] +'_graph_' + sys.argv[2] + '.txt'
-=======
-filename = '29_graph_70.txt'
->>>>>>> Stashed changes
 G = nx.Graph()
 visited = set()
 original_node = None
@@ -29,11 +25,7 @@ def check_neighbours(node, current_path=None):
     if current_path == None:
         current_path = []
     
-<<<<<<< Updated upstream
-   # print "Current path is", current_path
-=======
     # print "Current path is", current_path
->>>>>>> Stashed changes
     visited.add(node)
     current_path.append(node) 
     
@@ -56,12 +48,8 @@ def main():
 
 timeStart = time.time()
 build_graph()
-<<<<<<< Updated upstream
 original_node = random.randint(1, nx.number_of_nodes(G))
 print original_node
-=======
-original_node = 10
->>>>>>> Stashed changes
 print check_neighbours(original_node)
 timeEnd = time.time() - timeStart
 print timeEnd
